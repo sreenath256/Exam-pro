@@ -2,6 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
-router.post("/:id", authController.instituteRegister);
+const userController = require('../controllers/userController')
+
+router.get("/:id", userController.getUserById);
+router.post("/create-student", userController.createStudent);
+router.get("/getAllStudents/:instituteId", userController.getAllStudents);
 
 module.exports = router;

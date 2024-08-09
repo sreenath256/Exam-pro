@@ -5,8 +5,14 @@ import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import { setError, setLoading, setUser } from "./redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import api from "./utils/axios";
+import InstituteLayout from "./pages/InstituteLayout";
+import SubjectPage from "./pages/Subjects/SubjectPage";
+import Loading from "./components/Loading/Loading";
+import AddQuestionPage from "./pages/AddQuestion/AddQuestion";
+import CreateTest from "./pages/Subjects/CreateTest";
+import ShowExamList from "./components/ShowExamList/ShowExamList";
+import Student from "./pages/Student/Student";
 
 function App() {
   const dispatch = useDispatch();
@@ -14,6 +20,7 @@ function App() {
   const userId = localStorage.getItem("user_id");
   const isLoading = useSelector((state) => state.user.isLoading);
   const error = useSelector((state) => state.user.error);
+  const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     if (!userId) {
@@ -24,26 +31,24 @@ function App() {
     const fetchUserDetails = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await api.get(`/users/${userId}`);
-        console.log(response);
+
+        const response = await api.get(`/user/${userId}`);
 
         dispatch(setUser(response.data));
       } catch (err) {
         dispatch(setError(err.toString()));
       } finally {
         dispatch(setLoading(false));
-        console.log("from finally");
       }
     };
 
     fetchUserDetails();
   }, []);
 
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <AiOutlineLoading3Quarters className="animate-spin text-center text-4xl text-blue-500 dark:text-blue-400" />
-      </div>
+      <Loading/>
     );
   }
 
@@ -53,11 +58,25 @@ function App() {
   return (
     <div>
       <Toaster />
-
       <Routes>
-        <Route path="/" element={<div>Hello</div>} />
-        <Route path="/institute-login" element={<InstituteLogin />} />
-        <Route path="/institute-signup" element={<InstituteSignup />} />
+        {user ? (
+          user.role === "institute" ? (
+            <Route element={<InstituteLayout />}>
+              <Route path="/" element={<div>institute</div>} />
+              <Route path="/subjects" element={<SubjectPage/>} />
+              <Route path="/subjects/:id" element={<ShowExamList/>} />
+              <Route path="/subjects/:id/create-test" element={<CreateTest/>} />
+              <Route path="/students" element={<Student/>} />
+            </Route>
+          ) : user.role === "student" ? (
+            <Route path="/" element={<div>student</div>} />
+          ) : null
+        ) : (
+          <>
+            <Route path="/institute-login" element={<InstituteLogin />} />
+            <Route path="/institute-signup" element={<InstituteSignup />} />
+          </>
+        )}
       </Routes>
     </div>
   );

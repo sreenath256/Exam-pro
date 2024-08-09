@@ -34,11 +34,14 @@ const InstituteSignup = () => {
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
+      data.role='institute';
+      
       const res = await api.post("auth/register", data);
+      
       if (res) {
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user_id", res.data.institute._id);
-        dispatch(setUser(res.data.institute));
+        localStorage.setItem("user_id", res.data.user._id);
+        dispatch(setUser(res.data.user));
         toast.success("Signup success");
 
         navigate('/')

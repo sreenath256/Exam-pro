@@ -90,7 +90,7 @@ const InstituteLogin = () => {
             type="submit"
             className="w-full px-4 py-2 font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white"
           >
-            Login
+            {isLoading ? "Loggin in..." : "Login"}
           </button>
         </form>
       </div>

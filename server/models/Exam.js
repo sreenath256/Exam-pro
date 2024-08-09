@@ -1,19 +1,43 @@
 // models/Exam.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema({
-  question: { type: String, required: true },
+  question: {
+    type: String,
+    required: true,
+  },
   options: [{ type: String, required: true }],
   correctAnswer: { type: String, required: true },
-  mark: { type: Number, required: true }
+ 
 });
 
 const examSchema = new mongoose.Schema({
-  subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  institute: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+    required: true,
+  },
+  examName: {
+    type: String,
+    required: true,
+  },
   questions: [questionSchema],
-  passMark: { type: Number, required: true },
-  isActive: { type: Boolean, default: false },
-  results: [{ student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' }, marks: Number, passed: Boolean }]
+  displayQuestionNumber: { type: Number },
+  passMark: { type: Number },
+  markForEach: { type: Number },
+  isActive: {
+    type: String,
+    enum: ["pending", "active", "completed"],
+    required: true,
+  },
+  results: [
+    {
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      marks: Number,
+      passed: Boolean,
+    },
+  ],
 });
 
-module.exports = mongoose.model('Exam', examSchema);
+module.exports = mongoose.model("Exam", examSchema);

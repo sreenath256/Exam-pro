@@ -1,42 +1,43 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Institute = require("../models/Institute");
+const User = require("../models/User");
 
-exports.instituteRegister = async (req, res) => {
-  const { name, email, password } = req.body;
+exports.register = async (req, res) => {
+  const { name, email, password,role } = req.body;
 
   try {
-    const institute = await Institute.findOne({ email }).select("-password");
-    if (institute)
-      return res.status(400).json({ message: "Institute already exist. " });
+    const user = await User.findOne({ email }).select("-password");
+    if (user)
+      return res.status(400).json({ message: "Email already exist. " });
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newInstitute = new Institute({
+    const newUser = new User({
       name,
       email,
       password: hashedPassword,
+      role
     });
-    await newInstitute.save();
+    await newUser.save();
     const token = jwt.sign(
-      { instituteId: newInstitute._id },
+      { userId: newUser._id },
       process.env.JWT_SECRET
     );
-    res.status(201).json({ token, institute:newInstitute });
+    res.status(201).json({ token, user:newUser });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-exports.instituteLogin = async (req, res) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     console.log(req.body);
     
-    const institute = await Institute.findOne({ email })
-    if (!institute || !(await bcrypt.compare(password, institute.password))) {
+    const user = await User.findOne({ email })
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { instituteId: institute._id },
+      { userId: user._id },
       process.env.JWT_SECRET
     );
     res.json({ token, institute });

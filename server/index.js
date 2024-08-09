@@ -2,7 +2,8 @@ const dotenv = require("dotenv");
 const express = require("express");
 const mongoose = require("mongoose"); 
 const cors = require("cors");
-const morgan = require('morgan')
+const morgan = require('morgan');
+const authMiddleware = require("./middleware/authMiddleware");
 const app = express();
 
 dotenv.config();
@@ -16,7 +17,10 @@ app.get("/test",(req,res)=>{
 
 
 
-app.use("/auth", require('./routes/authRoute'));
+app.use("/auth",  require('./routes/authRoute'));
+app.use("/user",authMiddleware, require('./routes/userRoute'));
+app.use("/subject",authMiddleware, require('./routes/subjectRoute'));
+app.use("/exam",authMiddleware, require('./routes/examRoute'));
 
 const PORT = process.env.PORT || 3001;
 
