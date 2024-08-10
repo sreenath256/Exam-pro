@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import api from "../../utils/axios";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { setUser } from "../../redux/userSlice";
 import toast from 'react-hot-toast'
 
@@ -143,6 +143,22 @@ const InstituteSignup = () => {
             {isLoading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <p className="text-gray-400">
+            Already have an account ?{" "}
+            <Link to="/institute-login" className="text-blue-400 hover:underline">
+             Login
+            </Link>
+          </p>
+        </div>
+        <div className="mt-6 text-center">
+          <Link
+            to="/student-login"
+            className="text-blue-400 hover:underline"
+          >
+            Student Login
+          </Link>
+        </div>
       </div>
     </div>
   );

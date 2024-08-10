@@ -38,6 +38,7 @@ const examSchema = new mongoose.Schema({
       passed: Boolean,
     },
   ],
+  completedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
 });
 
 module.exports = mongoose.model("Exam", examSchema);

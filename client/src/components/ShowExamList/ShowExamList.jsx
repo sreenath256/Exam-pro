@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../../utils/axios";
+import Loading from "../Loading/Loading";
 
 const ShowExamList = ({ subjectName }) => {
   const [refresh, setRefresh] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { id: subjectId } = useParams();
 
@@ -12,12 +14,19 @@ const ShowExamList = ({ subjectName }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await api.get(`/exam/${subjectId}`);
+      try {
+        setIsLoading(false);
 
-      if (response) {
-        setExams(response.data);
+        const response = await api.get(`/exam/${subjectId}`);
+
+        if (response) {
+          setExams(response.data);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsLoading(false);
       }
-      console.log(response);
     };
 
     fetchData();
@@ -26,19 +35,23 @@ const ShowExamList = ({ subjectName }) => {
   const handleStartExam = async (id) => {
     try {
       const response = await api.post(`/exam/${id}/start`);
-      setRefresh(!refresh)
+      setRefresh(!refresh);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleStopExam = async (id)=>{
+  const handleStopExam = async (id) => {
     try {
-        const response = await api.post(`/exam/${id}/stop`);
-        setRefresh(!refresh)
+      const response = await api.post(`/exam/${id}/stop`);
+      setRefresh(!refresh);
     } catch (err) {
-        console.log(err);
-      }
+      console.log(err);
+    }
+  };
+
+  if (isLoading) {
+    return <Loading />;
   }
 
   return (

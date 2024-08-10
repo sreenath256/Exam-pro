@@ -9,6 +9,7 @@ exports.createExam = async (req, res) => {
     passMark,
     examName,
     isActive,
+    
   } = req.body;
 
   try {
@@ -29,9 +30,8 @@ exports.createExam = async (req, res) => {
   }
 };
 
-exports.getExam = async (req,res)=>{
+exports.getAllExam = async (req,res)=>{
     const { subjectId } = req.params;
-    console.log(subjectId,req.user._id);
     
 
   try {
@@ -85,3 +85,103 @@ exports.startExam = async (req, res) => {
     }
   };
   
+
+  const mongoose = require('mongoose');
+const Result = require("../models/Result");
+
+  exports.getActiveExams = async (req, res) => {
+    const { id } = req.params;
+    // return console.log(id);
+    
+    // Check if the id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid Institute ID.' });
+    }
+  
+    try {
+      const exams = await Exam.find({ institute: id ,isActive:'active'});
+  
+      if (!exams.length) {
+        return res.status(404).json({ message: 'No exams found for this institute.' });
+      }
+  
+      res.status(200).json(exams);
+    } catch (error) {
+      console.error("Error retrieving exams:", error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  };
+
+
+  exports.getExam = async (req, res) => {
+    const { examId } = req.params;
+    const {institute}=req.body;
+
+ 
+    
+    // Check if the id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(institute)) {
+      return res.status(400).json({ message: 'Invalid Institute ID.' });
+    }
+  
+    try {
+      const exams = await Exam.find({ institute: institute ,_id:examId});
+  
+      if (!exams.length) {
+        return res.status(404).json({ message: 'No exams found for this institute.' });
+      }
+  
+      res.status(200).json(exams);
+    } catch (error) {
+      console.error("Error retrieving exams:", error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  };
+  
+
+
+
+exports.submitExam = async (req, res) => {
+  const { examId, studentId, score } = req.body;
+
+  // return console.log(examId,studentId,score);
+  
+
+  try {
+    // Find the exam
+    const exam = await Exam.findById(examId);
+
+    if (!exam) {
+      return res.status(404).json({ message: 'Exam not found' });
+    }
+
+    // Check if the student has already completed the exam
+    if (exam.completedStudents.includes(studentId)) {
+      return res.status(400).json({ message: 'Student has already completed this exam' });
+    }
+
+    // Add studentId to the completedStudents array
+    exam.completedStudents.push(studentId);
+
+    // Save the result (assuming you have a Result model)
+    const result = new Result({
+      exam: examId,
+      student: studentId,
+      score,
+      passed: score >= exam.passMark, // Determine pass/fail
+    });
+
+    await result.save();
+
+    // Save the updated exam
+    await exam.save();
+
+    res.status(200).json({ message: 'Exam submitted successfully', result });
+  } catch (error) {
+    console.error('Error submitting exam:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+  
+  
+

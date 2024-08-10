@@ -4,50 +4,48 @@ import AddQuestionPage from "../AddQuestion/AddQuestion";
 import toast from "react-hot-toast";
 import api from "../../utils/axios";
 
-const CreateTest = ({  }) => {
+const CreateTest = ({}) => {
   const { id: subjectId } = useParams();
-  
-  const [questions, setQuestions] = useState([]);  
-  const [isQuestionOpen, setIsQuestionOpen] = useState(false)
+  const navigate = useNavigate();
+
+  const [questions, setQuestions] = useState([]);
+  const [isQuestionOpen, setIsQuestionOpen] = useState(false);
   const [formData, setFormData] = useState({
     examQuestionsNumber: "",
     marksPerQuestion: 1,
     passMark: 50,
-    examName:''
+    examName: "",
   });
 
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      
-      if(questions.length===0){
-        return toast.success("Please add questions")
+      if (questions.length === 0) {
+        return toast.success("Please add questions");
       }
       const object1 = {
         questions: questions,
         subjectId,
         isActive: "pending",
-        subjectId
       };
       const combinedData = {
         ...formData,
         ...object1,
       };
-      console.log(combinedData);
-      const response = await api.post('/exam/create-exam',combinedData)
-      if(response){
+      // return console.log(combinedData);
+      
+      const response = await api.post("/exam/create-exam", combinedData);
+      if (response) {
         console.log(response);
-        
+        navigate(`/subjects/${subjectId}`);
       }
     } catch (error) {
       console.error("Error during form submission:", error);
     }
   };
-  console.log(questions);
-  
 
   const handleAddQuestion = () => {
-    setIsQuestionOpen(true)
+    setIsQuestionOpen(true);
   };
 
   const handleInputChange = (e) => {
@@ -66,15 +64,16 @@ const CreateTest = ({  }) => {
         <h1 className="text-3xl font-bold mb-6"></h1>
         {isQuestionOpen ? (
           <AddQuestionPage
-          setIsQuestionOpen={setIsQuestionOpen}
-          setQuestions={setQuestions}
-        />
+            setIsQuestionOpen={setIsQuestionOpen}
+            setQuestions={setQuestions}
+          />
         ) : (
           <>
             <div className="bg-white shadow-md rounded-lg p-6 mb-6">
               <h2 className="text-xl font-semibold mb-4">Exam Information</h2>
               <p>
-                Status: <span className="font-medium">{formData.examStatus}</span>
+                Status:{" "}
+                <span className="font-medium">{formData.examStatus}</span>
               </p>
               <p>
                 Total Questions:{" "}
@@ -85,7 +84,8 @@ const CreateTest = ({  }) => {
                 <span className="font-medium">{formData.marksPerQuestion}</span>
               </p>
               <p>
-                Pass Mark: <span className="font-medium">{formData.passMark}%</span>
+                Pass Mark:{" "}
+                <span className="font-medium">{formData.passMark}%</span>
               </p>
             </div>
 
@@ -107,10 +107,8 @@ const CreateTest = ({  }) => {
               </div>
 
               <div className="mt-6 space-y-4">
-              <div>
-                  <label className="block mb-1 font-semibold">
-                   Exam name
-                  </label>
+                <div>
+                  <label className="block mb-1 font-semibold">Exam name</label>
                   <input
                     type="text"
                     name="examName"

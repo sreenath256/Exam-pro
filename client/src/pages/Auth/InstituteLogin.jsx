@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import api from "../../utils/axios";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { setUser } from "../../redux/userSlice";
 import toast from "react-hot-toast";
 
@@ -26,16 +26,21 @@ const InstituteLogin = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
   const onSubmit = async (data) => {
     try {
-      // return console.log(data);
-
       setIsLoading(true);
       const res = await api.post("auth/login", data);
+      
       if (res) {
+        
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user_id", res.data.institute._id);
-        dispatch(setUser(res.data.institute));
+        localStorage.setItem("user_id", res.data.user._id);
+        if(res.data.user.institute){
+          
+          localStorage.setItem("institute", res.data.user.institute);
+        }
+        // dispatch(setUser(res.data.institute));
         toast.success("Logged in");
         navigate("/");
       }
@@ -46,10 +51,11 @@ const InstituteLogin = () => {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
       <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-gray-800">
-        <h1 className="text-2xl font-bold mb-6">Login</h1>
+        <h1 className="text-2xl font-bold mb-6">Institute and Student Login</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label
@@ -90,9 +96,18 @@ const InstituteLogin = () => {
             type="submit"
             className="w-full px-4 py-2 font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isLoading ? "Loggin in..." : "Login"}
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <p className="text-gray-400">
+            Don't have an account?{" "}
+            <Link to="/institute-signup" className="text-blue-400 hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </div>
+        
       </div>
     </div>
   );

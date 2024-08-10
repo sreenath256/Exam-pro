@@ -1,41 +1,42 @@
 import React, { useState } from 'react';
 
-const AddQuestionPage = ({setIsQuestionOpen,setQuestions}) => {
+const  AddQuestionPage = ({setIsQuestionOpen,setQuestions}) => {
   const [question, setQuestion] = useState('');
-  const [answers, setAnswers] = useState(['', '', '', '']);
+  const [options, setOptions] = useState(['', '', '', '']);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [marks, setMarks] = useState(1);
   const [isFinished, setIsFinished] = useState(false);
 
   const handleAnswerChange = (index, value) => {
-    const newAnswers = [...answers];
+    const newAnswers = [...options];
     newAnswers[index] = value;
-    setAnswers(newAnswers);
+    setOptions(newAnswers);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log({
       question,
-      answers,
-      correctAnswer,
+      options,
+      correctAnswer:options[correctAnswer],
       marks,
       isFinished
     });
 
     setQuestions((prevQuestion)=>[
         ...prevQuestion,
-        {question,answers,correctAnswer,marks}
+        {question,options,correctAnswer:options[correctAnswer],marks}
     ])
 
 
     // Clear the form for the next question
     setQuestion('');
-    setAnswers(['', '', '', '']);
+    setOptions(['', '', '', '']);
     setCorrectAnswer('');
     setMarks(1);
     setIsFinished(false);
   };
+  
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
@@ -52,9 +53,9 @@ const AddQuestionPage = ({setIsQuestionOpen,setQuestions}) => {
           />
         </div>
 
-        {answers.map((answer, index) => (
+        {options.map((answer, index) => (
           <div key={index}>
-            <label className="block mb-1 font-semibold">Answer {index + 1}:</label>
+            <label className="block mb-1 font-semibold">Option {index + 1}:</label>
             <input
               type="text"
               value={answer}
@@ -74,9 +75,9 @@ const AddQuestionPage = ({setIsQuestionOpen,setQuestions}) => {
             required
           >
             <option value="">Select correct answer</option>
-            {answers.map((_, index) => (
-              <option key={index} value={`Answer ${index + 1}`}>
-                Answer {index + 1}
+            {options.map((_, index) => (
+              <option key={index} value={index}>
+                Option {index + 1}
               </option>
             ))}
           </select>

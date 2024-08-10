@@ -40,7 +40,7 @@ exports.login = async (req, res) => {
       { userId: user._id },
       process.env.JWT_SECRET
     );
-    res.json({ token, institute });
+    res.json({ token, user });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
