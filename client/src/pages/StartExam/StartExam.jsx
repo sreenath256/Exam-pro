@@ -14,6 +14,7 @@ const StarExam = () => {
   const [score, setScore] = useState(0);
 
   const [questions, setQuestions] = useState();
+  const [isAttended, setIsAttended] = useState();
 
   const [flag, setFlag] = useState(0);
   useEffect(() => {
@@ -82,7 +83,10 @@ const StarExam = () => {
 
     try{
       const response = await api.post('/exam/submit-exam',{examId:examData[0]._id,studentId:localStorage.getItem('user_id'),score:totalScore})
+
+      
       console.log(response);
+      
       
     }catch(err){
       console.log(err);
@@ -113,7 +117,7 @@ const StarExam = () => {
         </p>
         <p className="mb-4">Pass Mark: {examData[0].passMark}</p>
         <button
-          onClick={() => navigate("/active-exams")}
+          onClick={() => navigate("/active")}
           className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
           Back to Exams

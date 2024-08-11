@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../utils/axios";
 import Loading from "../Loading/Loading";
 
@@ -9,7 +9,7 @@ const ShowExamList = ({ subjectName }) => {
 
   const { id: subjectId } = useParams();
 
-  // Mock data for exams - in a real app, this would come from your backend or state management
+  const navigate = useNavigate()
   const [exams, setExams] = useState([]);
 
   useEffect(() => {
@@ -91,7 +91,12 @@ const ShowExamList = ({ subjectName }) => {
                   >
                     Stop
                   </span>
-                ) : null}
+                ) : <span
+                onClick={() => navigate(`/${exam._id}/result`)}
+                className="px-2 py-1 cursor-pointer rounded text-sm font-bold bg-blue-200 text-blue-800"
+              >
+                See result
+              </span>}
                 <span
                   className={`px-2 py-1 rounded text-sm ${
                     exam.isActive === "completed"

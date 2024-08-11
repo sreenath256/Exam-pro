@@ -11,8 +11,11 @@ router.post("/:examId/stop", examController.stopExam);
 router.post("/submit-exam", examController.submitExam);
 
 router.post("/:examId/student", examController.getExam);
+router.post("/:examId/result", examController.fetchExambyExamId);
 
 router.get("/getActiveExams/:id", examController.getActiveExams);
+router.get("/getCompletedExams/:id", examController.getCompletedExam);
+router.post("/getStudentResult/:examId", examController.fetchExamResultByStudent);
 
 
 module.exports = router;

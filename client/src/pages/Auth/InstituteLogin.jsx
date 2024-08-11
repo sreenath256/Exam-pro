@@ -42,6 +42,7 @@ const InstituteLogin = () => {
         }
         // dispatch(setUser(res.data.institute));
         toast.success("Logged in");
+        window.location.reload(false)
         navigate("/");
       }
     } catch (err) {

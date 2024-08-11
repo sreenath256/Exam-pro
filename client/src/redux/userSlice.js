@@ -25,6 +25,7 @@ const userSlice = createSlice({
       state.user = null;
       localStorage.removeItem("user_id");
       localStorage.removeItem("token");
+      localStorage.removeItem('institute')
     },
     setLoading: (state, action) => {
       state.isLoading = action.payload;

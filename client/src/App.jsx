@@ -16,6 +16,9 @@ import Student from "./pages/Student/Student";
 import StudentLayout from "./pages/StudentLayout";
 import ActiveExam from "./pages/ActiveExam/ActiveExam";
 import StarExam from "./pages/StartExam/StartExam";
+import ShowResult from "./pages/ShowResult/ShowResult";
+import CompletedExam from "./pages/CompletedExam/CompletedExam";
+import StudentMarkList from "./pages/ShowResult/StudentMarkList";
 
 function App() {
   const dispatch = useDispatch();
@@ -69,13 +72,19 @@ function App() {
               <Route path="/subjects/:id" element={<ShowExamList />} />
               <Route path="/subjects/:id/create-test" element={<CreateTest />} />
               <Route path="/students" element={<Student />} />
+              <Route path="/:examId/result" element={<StudentMarkList />} />
+              <Route path="*" element={navigate('/')} />
               {/* <Route path="*" element={navigate("/")} /> */}
             </Route>
           ) : user.role === "student" ? (
             <Route element={<StudentLayout />}>
-              <Route path="/active-exams" element={<ActiveExam />} />
+              <Route path="/" element={<div>From student div</div>} />
+              <Route path="/active" element={<ActiveExam />} />
+              <Route path="/completed" element={<CompletedExam />} />
               <Route path="/subjects" element={<SubjectPage />} />
               <Route path="/start-exam/:examId" element={<StarExam />} />
+              <Route path="/result/:examId" element={<ShowResult />} />
+              <Route path="*" element={navigate('/')} />
               {/* <Route path="/" element={navigate("/active")} /> */}
             </Route>
           ) : null
@@ -83,7 +92,8 @@ function App() {
           <>
             <Route path="/institute-login" element={<InstituteLogin />} />
             <Route path="/institute-signup" element={<InstituteSignup />} />
-            <Route path="/student-login" element={<InstituteLogin />} />
+              <Route path="/student-login" element={<InstituteLogin />} />
+              <Route path="*" element={navigate('/institute-login')} />
             {/* <Route path="*" element={navigate("/institute-login")} /> */}
           </>
         )}

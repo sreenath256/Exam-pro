@@ -11,6 +11,7 @@ const Topbar = () => {
   const handleLogout = () => {
     dispatch(clearUser());
     navigate('/')
+    window.location.reload(false)
   };
 
   return (

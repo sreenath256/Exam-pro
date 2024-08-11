@@ -9,7 +9,6 @@ exports.createExam = async (req, res) => {
     passMark,
     examName,
     isActive,
-    
   } = req.body;
 
   try {
@@ -30,16 +29,20 @@ exports.createExam = async (req, res) => {
   }
 };
 
-exports.getAllExam = async (req,res)=>{
-    const { subjectId } = req.params;
-    
+exports.getAllExam = async (req, res) => {
+  const { subjectId } = req.params;
 
   try {
     // Find exams based on institute and subject
-    const exams = await Exam.find({ institute: req.user._id, subject: subjectId });
+    const exams = await Exam.find({
+      institute: req.user._id,
+      subject: subjectId,
+    });
 
     if (!exams.length) {
-      return res.status(404).json({ message: 'No exams found for this subject.' });
+      return res
+        .status(404)
+        .json({ message: "No exams found for this subject." });
     }
 
     // Send the retrieved exams as a response
@@ -47,117 +50,109 @@ exports.getAllExam = async (req,res)=>{
   } catch (error) {
     // Handle errors and send a 500 response
     console.error("Error retrieving exams:", error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: "Server error" });
   }
-    
-}
-
+};
 
 exports.startExam = async (req, res) => {
-    const { examId } = req.params;
-    try {
-      const exam = await Exam.findOne({_id:examId,institute:req.user._id});
-      if (!exam ) {
-        return res.status(403).json({ message: 'No exam found' });
-      }
-      exam.isActive = 'active';
-      
-      await exam.save();
-      res.json(exam);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+  const { examId } = req.params;
+  try {
+    const exam = await Exam.findOne({ _id: examId, institute: req.user._id });
+    if (!exam) {
+      return res.status(403).json({ message: "No exam found" });
     }
-  };
+    exam.isActive = "active";
 
-  exports.stopExam = async (req, res) => {
-    const { examId } = req.params;
-    try {
-      const exam = await Exam.findOne({_id:examId,institute:req.user._id});
-      if (!exam ) {
-        return res.status(403).json({ message: 'No exam found' });
-      }
-      exam.isActive = 'completed';
-      
-      await exam.save();
-      res.json(exam);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    await exam.save();
+    res.json(exam);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.stopExam = async (req, res) => {
+  const { examId } = req.params;
+  try {
+    const exam = await Exam.findOne({ _id: examId, institute: req.user._id });
+    if (!exam) {
+      return res.status(403).json({ message: "No exam found" });
     }
-  };
-  
+    exam.isActive = "completed";
 
-  const mongoose = require('mongoose');
+    await exam.save();
+    res.json(exam);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const mongoose = require("mongoose");
 const Result = require("../models/Result");
 
-  exports.getActiveExams = async (req, res) => {
-    const { id } = req.params;
-    // return console.log(id);
+exports.getActiveExams = async (req, res) => {
+  const { id } = req.params;
+  // return console.log(id);
+
+  // Check if the id is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid Institute ID." });
+  }
+
+  try {
+    const exams = await Exam.find({ institute: id, isActive: "active" });
+
     
-    // Check if the id is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid Institute ID.' });
+
+    res.status(200).json(exams);
+  } catch (error) {
+    console.error("Error retrieving exams:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getExam = async (req, res) => {
+  const { examId } = req.params;
+  const { institute } = req.body;
+
+  // Check if the id is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(institute)) {
+    return res.status(400).json({ message: "Invalid Institute ID." });
+  }
+
+  try {
+    const exams = await Exam.find({ institute: institute, _id: examId });
+
+    if (!exams.length) {
+      return res
+        .status(404)
+        .json({ message: "No exams found for this institute." });
     }
-  
-    try {
-      const exams = await Exam.find({ institute: id ,isActive:'active'});
-  
-      if (!exams.length) {
-        return res.status(404).json({ message: 'No exams found for this institute.' });
-      }
-  
-      res.status(200).json(exams);
-    } catch (error) {
-      console.error("Error retrieving exams:", error);
-      res.status(500).json({ error: 'Server error' });
-    }
-  };
 
-
-  exports.getExam = async (req, res) => {
-    const { examId } = req.params;
-    const {institute}=req.body;
-
- 
-    
-    // Check if the id is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(institute)) {
-      return res.status(400).json({ message: 'Invalid Institute ID.' });
-    }
-  
-    try {
-      const exams = await Exam.find({ institute: institute ,_id:examId});
-  
-      if (!exams.length) {
-        return res.status(404).json({ message: 'No exams found for this institute.' });
-      }
-  
-      res.status(200).json(exams);
-    } catch (error) {
-      console.error("Error retrieving exams:", error);
-      res.status(500).json({ error: 'Server error' });
-    }
-  };
-  
-
-
+    res.status(200).json(exams);
+  } catch (error) {
+    console.error("Error retrieving exams:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 exports.submitExam = async (req, res) => {
   const { examId, studentId, score } = req.body;
 
   // return console.log(examId,studentId,score);
-  
 
   try {
     // Find the exam
     const exam = await Exam.findById(examId);
 
     if (!exam) {
-      return res.status(404).json({ message: 'Exam not found' });
+      return res.status(404).json({ message: "Exam not found" });
     }
 
     // Check if the student has already completed the exam
     if (exam.completedStudents.includes(studentId)) {
-      return res.status(400).json({ message: 'Student has already completed this exam' });
+      return res
+        .status(400)
+        .json({ message: "Student has already completed this exam" });
     }
 
     // Add studentId to the completedStudents array
@@ -176,12 +171,88 @@ exports.submitExam = async (req, res) => {
     // Save the updated exam
     await exam.save();
 
-    res.status(200).json({ message: 'Exam submitted successfully', result });
+    res.status(200).json({ message: "Exam submitted successfully", result });
   } catch (error) {
-    console.error('Error submitting exam:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error submitting exam:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
+
+exports.fetchExamResultByStudent = async (req, res) => {
+  const { examId } = req.params;
+  const { studentId } = req.body;
+
+
+  console.log(examId,studentId);
   
+  try {
+    const result = await Result.findOne({ exam: examId, student: studentId }).populate({
+      path:'exam',
+      select:'examName passMark'
+    })
+
+    if (!result) {
+      return res
+        .status(404)
+        .json({ message: "Result not found for this exam and student" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching exam result:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+
+exports.getCompletedExam = async (req, res) => {
+  const { id } = req.params;
+  // return console.log(id);
+
+  // Check if the id is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid Institute ID." });
+  }
+
+  try {
+    const exams = await Exam.find({ institute: id, isActive: "completed" });
+    
+
+    if (!exams.length) {
+      return res
+        .status(404)
+        .json({ message: "No exams found for this institute." });
+    }
+
+    res.status(200).json(exams);
+  } catch (error) {
+    console.error("Error retrieving exams:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.fetchExambyExamId = async (req, res) => {
+  const { examId } = req.params;
+  const { institute } = req.body;
+   console.log(examId,institute);
   
 
+
+  
+  try {
+    const result = await Result.find({exam:examId}).populate({
+      path:'student'
+    })
+
+    if (!result) {
+      return res
+        .status(404)
+        .json({ message: "Result not found for this exam and institute" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching exam result:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
