@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import InstituteLogin from "./pages/Auth/InstituteLogin";
 import InstituteSignup from "./pages/Auth/InstituteSignup";
 import { Toaster } from "react-hot-toast";
@@ -67,25 +67,24 @@ function App() {
         {user ? (
           user.role === "institute" ? (
             <Route element={<InstituteLayout />}>
-              <Route path="/" element={<div>institute</div>} />
               <Route path="/subjects" element={<SubjectPage />} />
               <Route path="/subjects/:id" element={<ShowExamList />} />
               <Route path="/subjects/:id/create-test" element={<CreateTest />} />
               <Route path="/students" element={<Student />} />
               <Route path="/:examId/result" element={<StudentMarkList />} />
-              <Route path="*" element={navigate('/')} />
-              {/* <Route path="*" element={navigate("/")} /> */}
+              <Route path="*" element={<Navigate to="/subjects" />} />
+              {/* <Route path="/" element={<div>institute</div>} /> */}
             </Route>
           ) : user.role === "student" ? (
             <Route element={<StudentLayout />}>
-              <Route path="/" element={<div>From student div</div>} />
+              <Route path="/" element={<Navigate to='/active'/>} />
               <Route path="/active" element={<ActiveExam />} />
               <Route path="/completed" element={<CompletedExam />} />
               <Route path="/subjects" element={<SubjectPage />} />
               <Route path="/start-exam/:examId" element={<StarExam />} />
               <Route path="/result/:examId" element={<ShowResult />} />
-              <Route path="*" element={navigate('/')} />
-              {/* <Route path="/" element={navigate("/active")} /> */}
+              <Route path="*" element={<Navigate to="/institute-login" />} />
+              {/* <Route path="/" element={<div>From student div</div>} /> */}
             </Route>
           ) : null
         ) : (
@@ -93,8 +92,8 @@ function App() {
             <Route path="/institute-login" element={<InstituteLogin />} />
             <Route path="/institute-signup" element={<InstituteSignup />} />
               <Route path="/student-login" element={<InstituteLogin />} />
-              <Route path="*" element={navigate('/institute-login')} />
-            {/* <Route path="*" element={navigate("/institute-login")} /> */}
+              <Route path="*" element={<Navigate to="/institute-login" />} />
+              {/* <Route path="*" element={navigate("/institute-login")} /> */}
           </>
         )}
       </Routes>

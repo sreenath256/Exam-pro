@@ -36,11 +36,12 @@ const InstituteLogin = () => {
         
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user_id", res.data.user._id);
+        console.log(res);
+        
         if(res.data.user.institute){
           
           localStorage.setItem("institute", res.data.user.institute);
         }
-        // dispatch(setUser(res.data.institute));
         toast.success("Logged in");
         window.location.reload(false)
         navigate("/");

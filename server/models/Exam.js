@@ -1,4 +1,3 @@
-// models/Exam.js
 const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema({
@@ -8,7 +7,6 @@ const questionSchema = new mongoose.Schema({
   },
   options: [{ type: String, required: true }],
   correctAnswer: { type: String, required: true },
- 
 });
 
 const examSchema = new mongoose.Schema({
@@ -26,6 +24,17 @@ const examSchema = new mongoose.Schema({
   displayQuestionNumber: { type: Number },
   passMark: { type: Number },
   markForEach: { type: Number },
+  questionFilePath: {
+    type: String,
+  },
+  examType: {
+    type: String,
+    enum: ["fileUpload", "manually"],
+    required: true,
+  },
+  answers: {
+    type: [String],
+  },
   isActive: {
     type: String,
     enum: ["pending", "active", "completed"],
@@ -38,7 +47,7 @@ const examSchema = new mongoose.Schema({
       passed: Boolean,
     },
   ],
-  completedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
+  completedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 module.exports = mongoose.model("Exam", examSchema);

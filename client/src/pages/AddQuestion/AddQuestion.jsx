@@ -29,7 +29,6 @@ const  AddQuestionPage = ({setIsQuestionOpen,setQuestions}) => {
     ])
 
 
-    // Clear the form for the next question
     setQuestion('');
     setOptions(['', '', '', '']);
     setCorrectAnswer('');

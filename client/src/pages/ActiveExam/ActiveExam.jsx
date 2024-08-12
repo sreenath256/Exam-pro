@@ -16,6 +16,8 @@ const ActiveExam = () => {
     try {
       setIsLoading(true);
       const institute = localStorage.getItem("institute");
+      console.log(institute);
+      
 
       const response = await api.get(`/exam/getActiveExams/${institute}`);
       console.log(response);

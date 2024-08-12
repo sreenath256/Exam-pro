@@ -9,6 +9,7 @@ exports.createExam = async (req, res) => {
     passMark,
     examName,
     isActive,
+    examType,
   } = req.body;
 
   try {
@@ -17,7 +18,42 @@ exports.createExam = async (req, res) => {
       subject: subjectId,
       examName,
       questions,
+      examType,
       displayQuestionNumber: examQuestionsNumber,
+      passMark,
+      markForEach: marksPerQuestion,
+      isActive,
+    });
+    await exam.save();
+    res.status(201).json(exam);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.createExamWithFile = async (req, res) => {
+  const {
+    subjectId,
+
+    examType,
+    answers,
+    marksPerQuestion,
+    passMark,
+    examName,
+    isActive,
+  } = req.body;
+
+  try {
+    console.log(req.file.filename);
+    // return console.log(req.body);
+    const filePath = `/assets/${req.file.filename}`;
+    const exam = new Exam({
+      institute: req.user._id,
+      subject: subjectId,
+      examName,
+      examType,
+      answers,
+      questionFilePath:filePath,
       passMark,
       markForEach: marksPerQuestion,
       isActive,
@@ -33,7 +69,6 @@ exports.getAllExam = async (req, res) => {
   const { subjectId } = req.params;
 
   try {
-    // Find exams based on institute and subject
     const exams = await Exam.find({
       institute: req.user._id,
       subject: subjectId,
@@ -45,10 +80,8 @@ exports.getAllExam = async (req, res) => {
         .json({ message: "No exams found for this subject." });
     }
 
-    // Send the retrieved exams as a response
     res.status(200).json(exams);
   } catch (error) {
-    // Handle errors and send a 500 response
     console.error("Error retrieving exams:", error);
     res.status(500).json({ error: "Server error" });
   }
@@ -91,17 +124,13 @@ const Result = require("../models/Result");
 
 exports.getActiveExams = async (req, res) => {
   const { id } = req.params;
-  // return console.log(id);
 
-  // Check if the id is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid Institute ID." });
   }
 
   try {
     const exams = await Exam.find({ institute: id, isActive: "active" });
-
-    
 
     res.status(200).json(exams);
   } catch (error) {
@@ -114,7 +143,6 @@ exports.getExam = async (req, res) => {
   const { examId } = req.params;
   const { institute } = req.body;
 
-  // Check if the id is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(institute)) {
     return res.status(400).json({ message: "Invalid Institute ID." });
   }
@@ -141,34 +169,29 @@ exports.submitExam = async (req, res) => {
   // return console.log(examId,studentId,score);
 
   try {
-    // Find the exam
     const exam = await Exam.findById(examId);
 
     if (!exam) {
       return res.status(404).json({ message: "Exam not found" });
     }
 
-    // Check if the student has already completed the exam
     if (exam.completedStudents.includes(studentId)) {
       return res
         .status(400)
         .json({ message: "Student has already completed this exam" });
     }
 
-    // Add studentId to the completedStudents array
     exam.completedStudents.push(studentId);
 
-    // Save the result (assuming you have a Result model)
     const result = new Result({
       exam: examId,
       student: studentId,
       score,
-      passed: score >= exam.passMark, // Determine pass/fail
+      passed: score >= exam.passMark,
     });
 
     await result.save();
 
-    // Save the updated exam
     await exam.save();
 
     res.status(200).json({ message: "Exam submitted successfully", result });
@@ -182,14 +205,16 @@ exports.fetchExamResultByStudent = async (req, res) => {
   const { examId } = req.params;
   const { studentId } = req.body;
 
+  console.log(examId, studentId);
 
-  console.log(examId,studentId);
-  
   try {
-    const result = await Result.findOne({ exam: examId, student: studentId }).populate({
-      path:'exam',
-      select:'examName passMark'
-    })
+    const result = await Result.findOne({
+      exam: examId,
+      student: studentId,
+    }).populate({
+      path: "exam",
+      select: "examName passMark",
+    });
 
     if (!result) {
       return res
@@ -204,19 +229,15 @@ exports.fetchExamResultByStudent = async (req, res) => {
   }
 };
 
-
 exports.getCompletedExam = async (req, res) => {
   const { id } = req.params;
-  // return console.log(id);
 
-  // Check if the id is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid Institute ID." });
   }
 
   try {
     const exams = await Exam.find({ institute: id, isActive: "completed" });
-    
 
     if (!exams.length) {
       return res
@@ -234,15 +255,12 @@ exports.getCompletedExam = async (req, res) => {
 exports.fetchExambyExamId = async (req, res) => {
   const { examId } = req.params;
   const { institute } = req.body;
-   console.log(examId,institute);
-  
+  console.log(examId, institute);
 
-
-  
   try {
-    const result = await Result.find({exam:examId}).populate({
-      path:'student'
-    })
+    const result = await Result.find({ exam: examId }).populate({
+      path: "student",
+    });
 
     if (!result) {
       return res

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../utils/axios";
-import { toast} from 'react-hot-toast'
+import { toast } from "react-hot-toast";
 const Student = () => {
   const [students, setStudents] = useState([]);
 
@@ -8,18 +8,21 @@ const Student = () => {
     name: "",
     email: "",
     password: "",
+
+    institute:localStorage.getItem('user_id')
   });
 
   useEffect(() => {
-    const fetchData =async () => {
+    const fetchData = async () => {
       try {
         const instituteId = localStorage.getItem("user_id");
-        const response= await api.get(`/user/getAllStudents/${instituteId}`);
-        if(response){
-          setStudents(response.data)
+        console.log(instituteId);
+
+        const response = await api.get(`/user/getAllStudents/${instituteId}`);
+        if (response) {
+          setStudents(response.data);
         }
         console.log(response);
-        
       } catch (err) {
         console.log(err);
       }
@@ -37,24 +40,24 @@ const Student = () => {
   };
 
   const handleAddStudent = async (e) => {
-   try{
-    e.preventDefault();
-    setFormData((prevState) => ({
-      ...prevState,
-      institute: localStorage.getItem("user_id"),
-    }));
+    try {
+      e.preventDefault();
+          // const instituteId = localStorage.getItem("user_id");
+          // setFormData((prevState) => ({
+          //   ...prevState,
+          //   institute:instituteId,
+          // }));
 
-    const response = await api.post("/user/create-student", formData);
-    if(response){
-
-      toast.success('Student created')
-      setStudents([...students, formData]);
-      setFormData({ name: "", email: "", password: "" });
+      const response = await api.post("/user/create-student", formData);
+      if (response) {
+        toast.success("Student created");
+        setStudents([...students, formData]);
+        setFormData({ name: "", email: "", password: "" });
+      }
+    } catch (err) {
+      console.log(err);
+      toast.success(err.response.data.message);
     }
-   }catch(err){
-    console.log(err);
-    toast.success(err.response.data.message)
-   }
   };
 
   return (
