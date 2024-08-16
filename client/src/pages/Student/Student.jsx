@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from "react";
 import api from "../../utils/axios";
 import { toast } from "react-hot-toast";
+
 const Student = () => {
   const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-
-    institute:localStorage.getItem('user_id')
+    classId: "",  
+    institute: localStorage.getItem("user_id"),
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const instituteId = localStorage.getItem("user_id");
-        console.log(instituteId);
 
         const response = await api.get(`/user/getAllStudents/${instituteId}`);
         if (response) {
           setStudents(response.data);
         }
-        console.log(response);
+
+        const classResponse = await api.get("/classes");
+        if (classResponse) {
+          setClasses(classResponse.data);
+        }
+
       } catch (err) {
         console.log(err);
       }
@@ -42,21 +48,17 @@ const Student = () => {
   const handleAddStudent = async (e) => {
     try {
       e.preventDefault();
-          // const instituteId = localStorage.getItem("user_id");
-          // setFormData((prevState) => ({
-          //   ...prevState,
-          //   institute:instituteId,
-          // }));
-
+      
       const response = await api.post("/user/create-student", formData);
+      
       if (response) {
         toast.success("Student created");
         setStudents([...students, formData]);
-        setFormData({ name: "", email: "", password: "" });
+        setFormData({ name: "", email: "", password: "", classId: "" });
       }
     } catch (err) {
       console.log(err);
-      toast.success(err.response.data.message);
+      toast.error(err.response.data.message);
     }
   };
 
@@ -97,6 +99,24 @@ const Student = () => {
             required
           />
         </div>
+        <div className="mb-4">
+          <select
+            name="classId"
+            value={formData.classId}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="" disabled>
+              Select Class
+            </option>
+            {classes.map((cls) => (
+              <option key={cls._id} value={cls._id}>
+                {cls.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Add Student
         </button>
@@ -112,6 +132,9 @@ const Student = () => {
               </p>
               <p>
                 <strong>Email:</strong> {student.email}
+              </p>
+              <p>
+              <strong>Class:</strong> {student.class ? student.class.name: "Not specified" }
               </p>
             </li>
           ))}

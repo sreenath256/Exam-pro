@@ -11,6 +11,8 @@ const questionSchema = new mongoose.Schema({
 
 const examSchema = new mongoose.Schema({
   institute: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
+
   subject: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
@@ -34,6 +36,9 @@ const examSchema = new mongoose.Schema({
   },
   answers: {
     type: [String],
+  },
+  questionsCount: {
+    type: Number,
   },
   isActive: {
     type: String,

@@ -19,6 +19,7 @@ import StarExam from "./pages/StartExam/StartExam";
 import ShowResult from "./pages/ShowResult/ShowResult";
 import CompletedExam from "./pages/CompletedExam/CompletedExam";
 import StudentMarkList from "./pages/ShowResult/StudentMarkList";
+import Classes from "./pages/Classes/Classes";
 
 function App() {
   const dispatch = useDispatch();
@@ -67,10 +68,11 @@ function App() {
         {user ? (
           user.role === "institute" ? (
             <Route element={<InstituteLayout />}>
-              <Route path="/subjects" element={<SubjectPage />} />
-              <Route path="/subjects/:id" element={<ShowExamList />} />
-              <Route path="/subjects/:id/create-test" element={<CreateTest />} />
+              <Route path="/subjects/:classId" element={<SubjectPage />} />
+              <Route path="/subjects/:classId/:subjectId" element={<ShowExamList />} />
+              <Route path="/subjects/:classId/:subjectId/create-test" element={<CreateTest />} />
               <Route path="/students" element={<Student />} />
+              <Route path="/classes" element={<Classes />} />
               <Route path="/:examId/result" element={<StudentMarkList />} />
               <Route path="*" element={<Navigate to="/subjects" />} />
               {/* <Route path="/" element={<div>institute</div>} /> */}

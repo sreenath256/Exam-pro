@@ -10,6 +10,7 @@ exports.createExam = async (req, res) => {
     examName,
     isActive,
     examType,
+    cls,
   } = req.body;
 
   try {
@@ -23,6 +24,7 @@ exports.createExam = async (req, res) => {
       passMark,
       markForEach: marksPerQuestion,
       isActive,
+      class: cls,
     });
     await exam.save();
     res.status(201).json(exam);
@@ -41,11 +43,11 @@ exports.createExamWithFile = async (req, res) => {
     passMark,
     examName,
     isActive,
+    questionsCount,
+    cls,
   } = req.body;
 
   try {
-    console.log(req.file.filename);
-    // return console.log(req.body);
     const filePath = `/assets/${req.file.filename}`;
     const exam = new Exam({
       institute: req.user._id,
@@ -53,10 +55,12 @@ exports.createExamWithFile = async (req, res) => {
       examName,
       examType,
       answers,
-      questionFilePath:filePath,
+      questionFilePath: filePath,
+      questionsCount,
       passMark,
       markForEach: marksPerQuestion,
       isActive,
+      class: cls,
     });
     await exam.save();
     res.status(201).json(exam);
@@ -66,12 +70,13 @@ exports.createExamWithFile = async (req, res) => {
 };
 
 exports.getAllExam = async (req, res) => {
-  const { subjectId } = req.params;
+  const { subjectId, classId } = req.params;
 
   try {
     const exams = await Exam.find({
       institute: req.user._id,
       subject: subjectId,
+      class: classId,
     });
 
     if (!exams.length) {
@@ -123,14 +128,23 @@ const mongoose = require("mongoose");
 const Result = require("../models/Result");
 
 exports.getActiveExams = async (req, res) => {
-  const { id } = req.params;
+  const { instituteId, classId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!mongoose.Types.ObjectId.isValid(instituteId)) {
     return res.status(400).json({ message: "Invalid Institute ID." });
   }
 
+  if (!mongoose.Types.ObjectId.isValid(classId)) {
+    return res.status(400).json({ message: "Invalid Class ID." });
+  }
+
   try {
-    const exams = await Exam.find({ institute: id, isActive: "active" });
+    
+    const exams = await Exam.find({
+      institute: instituteId,
+      class: classId,
+      isActive: "active",
+    });
 
     res.status(200).json(exams);
   } catch (error) {
@@ -164,9 +178,8 @@ exports.getExam = async (req, res) => {
 };
 
 exports.submitExam = async (req, res) => {
-  const { examId, studentId, score } = req.body;
+  const { examId, studentId, score, passed, cls } = req.body;
 
-  // return console.log(examId,studentId,score);
 
   try {
     const exam = await Exam.findById(examId);
@@ -188,6 +201,7 @@ exports.submitExam = async (req, res) => {
       student: studentId,
       score,
       passed: score >= exam.passMark,
+      class: cls,
     });
 
     await result.save();
@@ -205,7 +219,6 @@ exports.fetchExamResultByStudent = async (req, res) => {
   const { examId } = req.params;
   const { studentId } = req.body;
 
-  console.log(examId, studentId);
 
   try {
     const result = await Result.findOne({
@@ -230,20 +243,21 @@ exports.fetchExamResultByStudent = async (req, res) => {
 };
 
 exports.getCompletedExam = async (req, res) => {
-  const { id } = req.params;
+  const { instituteId, classId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!mongoose.Types.ObjectId.isValid(instituteId)) {
     return res.status(400).json({ message: "Invalid Institute ID." });
   }
 
   try {
-    const exams = await Exam.find({ institute: id, isActive: "completed" });
+    const exams = await Exam.find({
+      institute: instituteId,
+      class: classId,
+      isActive: "completed",
+    });
 
-    if (!exams.length) {
-      return res
-        .status(404)
-        .json({ message: "No exams found for this institute." });
-    }
+
+   
 
     res.status(200).json(exams);
   } catch (error) {
@@ -255,7 +269,6 @@ exports.getCompletedExam = async (req, res) => {
 exports.fetchExambyExamId = async (req, res) => {
   const { examId } = req.params;
   const { institute } = req.body;
-  console.log(examId, institute);
 
   try {
     const result = await Result.find({ exam: examId }).populate({

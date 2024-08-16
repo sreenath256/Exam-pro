@@ -5,7 +5,8 @@ const resultSchema = new mongoose.Schema({
   exam: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true },
   score: { type: Number, required: true },
   passed: { type: Boolean, required: true },
-  submittedAt: { type: Date, default: Date.now }
+  submittedAt: { type: Date, default: Date.now },
+  class:{ type: mongoose.Schema.Types.ObjectId, ref: 'Classr', required: true },
 });
 
 const Result = mongoose.model('Result', resultSchema);

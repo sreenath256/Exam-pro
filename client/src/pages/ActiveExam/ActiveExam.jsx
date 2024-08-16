@@ -16,11 +16,10 @@ const ActiveExam = () => {
     try {
       setIsLoading(true);
       const institute = localStorage.getItem("institute");
-      console.log(institute);
+      const classId = localStorage.getItem("class_id");
       
 
-      const response = await api.get(`/exam/getActiveExams/${institute}`);
-      console.log(response);
+      const response = await api.get(`/exam/getActiveExams/${institute}/${classId}`);
 
       setActiveExams(response.data);
     } catch (error) {
@@ -30,7 +29,6 @@ const ActiveExam = () => {
       setIsLoading(false);
     }
   };
-  console.log(activeExams);
   
   return (
     <div className="container mx-auto p-4">

@@ -11,9 +11,14 @@ const LeftSidebar = () => {
               Home
             </Link>
           </li>
-          <li className="mb-2">
+          {/* <li className="mb-2">
             <Link to="/subjects" className="hover:text-gray-300">
             Subjects
+            </Link>
+          </li> */}
+           <li className="mb-2">
+            <Link to="/classes" className="hover:text-gray-300">
+            Classes
             </Link>
           </li>
           <li className="mb-2">

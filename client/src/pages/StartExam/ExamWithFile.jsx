@@ -1,19 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import api from "../../utils/axios";
+import ShowResultForFileExam from "../ShowResult/ShowResultForFileExam";
 
-function PdfUpload({ setFile, setIsFileUpload ,setAnswers,setQuestionsCount}) {
+const ExamWithFile = ({ examData, setScore, setExamFinished }) => {
   const [pdfFile, setPdfFile] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [questionCount, setQuestionCount] = useState(3);
+  const [correctAnswer, setCorrectAnswer] = useState(3);
+  const [showResult, setShowResult] = useState(false);
+  const [mark, setMark] = useState();
+  const [passed, setPassed] = useState();
 
-  const handleFileUpload = (event) => {
-    let selectedPdf = event.target.files[0];
-    if (selectedPdf && selectedPdf.type === "application/pdf") {
-      setPdfFile(selectedPdf);
-    } else {
-      alert("Please select a PDF file.");
-      event.target.value = null;
-    }
-  };
+  useEffect(() => {
+    setPdfFile("http://localhost:3000" + examData[0].questionFilePath);
+    setQuestionCount(examData[0].questionsCount);
+    setCorrectAnswer(examData[0].answers);
+  }, []);
 
   const handleOptionChange = (questionIndex, option) => {
     const updatedOptions = [...selectedOptions];
@@ -21,7 +23,7 @@ function PdfUpload({ setFile, setIsFileUpload ,setAnswers,setQuestionsCount}) {
     setSelectedOptions(updatedOptions);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       selectedOptions.length !== questionCount ||
       selectedOptions.includes(undefined)
@@ -29,50 +31,56 @@ function PdfUpload({ setFile, setIsFileUpload ,setAnswers,setQuestionsCount}) {
       alert("Please select an option for all questions before submitting.");
       return;
     }
-    if (!pdfFile) {
-      alert("Please select file.");
 
-      return;
+
+    let mark = 0;
+    for (let i = 0; i < questionCount; i++) {
+
+      if (correctAnswer[i] == selectedOptions[i]) {
+        setScore((prevState) => (prevState += examData[0].markForEach));
+        mark += examData[0].markForEach;
+      }
+      setMark(mark);
     }
-    setIsFileUpload(false);
-    setFile(pdfFile);
-    setAnswers(selectedOptions)
-    setQuestionsCount(questionCount)
+    try {
+      setExamFinished(true);
+      if (mark >= examData[0].passMark) {
+        setPassed(true);
+      } else {
+        setPassed(false);
+      }
 
-
+      const response = await api.post("/exam/submit-exam", {
+        examId: examData[0]._id,
+        studentId: localStorage.getItem("user_id"),
+        score: mark,
+        passed,
+        cls:localStorage.getItem('class_id')
+      });
+      setShowResult(true);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleQuestionCountChange = (event) => {
-    setQuestionCount(parseInt(event.target.value));
-    setSelectedOptions([]);
-  };
+  if (showResult) {
+    return (
+      <ShowResultForFileExam
+        score={mark}
+        passMark={examData[0].passMark}
+        passed={passed}
+      />
+    );
+  }
 
   return (
     <div className="w-full p-4 bg-gray-100 min-h-screen">
-      <div className="flex justify-end mb-4">
-        <select
-          value={questionCount}
-          onChange={handleQuestionCountChange}
-          className="p-2 border rounded"
-        >
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-            <option key={num} value={num}>
-              {num} Question{num !== 1 ? "s" : ""}
-            </option>
-          ))}
-        </select>
-      </div>
+      <div className="flex justify-end mb-4"></div>
       <div className="flex space-x-4">
         <div className="w-1/2 bg-white p-4 rounded shadow">
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            accept="application/pdf"
-            className="mb-4"
-          />
           {pdfFile && (
             <embed
-              src={URL.createObjectURL(pdfFile)}
+              src={pdfFile}
               type="application/pdf"
               width="100%"
               height="600px"
@@ -81,7 +89,7 @@ function PdfUpload({ setFile, setIsFileUpload ,setAnswers,setQuestionsCount}) {
         </div>
         <div className="w-1/2 bg-white p-4 rounded shadow overflow-scroll max-h-screen">
           <form>
-            {[...Array(questionCount)].map((_, index) => (
+            {Array.from({ length: questionCount }).map((_, index) => (
               <div key={index} className="mb-6">
                 <p className="font-bold mb-2">Question {index + 1}</p>
                 <div className="space-y-2">
@@ -111,6 +119,6 @@ function PdfUpload({ setFile, setIsFileUpload ,setAnswers,setQuestionsCount}) {
       </div>
     </div>
   );
-}
+};
 
-export default PdfUpload;
+export default ExamWithFile;

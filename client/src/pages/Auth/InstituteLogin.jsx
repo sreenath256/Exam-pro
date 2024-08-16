@@ -36,7 +36,7 @@ const InstituteLogin = () => {
         
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user_id", res.data.user._id);
-        console.log(res);
+        localStorage.setItem("class_id", res.data.user.class);
         
         if(res.data.user.institute){
           

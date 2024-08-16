@@ -25,7 +25,6 @@ const StudentMarkList = () => {
 
 
 
-        console.log(response);
       } catch (err) {
         setError(err);
         console.log(err);

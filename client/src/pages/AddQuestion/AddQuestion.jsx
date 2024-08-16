@@ -15,13 +15,7 @@ const  AddQuestionPage = ({setIsQuestionOpen,setQuestions}) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({
-      question,
-      options,
-      correctAnswer:options[correctAnswer],
-      marks,
-      isFinished
-    });
+    
 
     setQuestions((prevQuestion)=>[
         ...prevQuestion,

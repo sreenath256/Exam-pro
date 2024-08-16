@@ -19,7 +19,6 @@ const ShowResult = () => {
       try {
         setIsLoading(true);
         const studentId = localStorage.getItem("user_id");
-        console.log(studentId);
 
         const response = await api.post(`/exam/getStudentResult/${id}`, {
           studentId,
@@ -28,7 +27,6 @@ const ShowResult = () => {
         setPassMark(response.data.exam.passMark)
         setResult(response.data);
 
-        console.log(response);
       } catch (err) {
         setError(err.message)
         console.log(err);
@@ -40,7 +38,6 @@ const ShowResult = () => {
     fetchData();
   }, []);
 
-  console.log(result);
 const Error = ()=>{
 
     

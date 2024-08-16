@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../utils/axios";
 import toast from "react-hot-toast";
+import ExamWithFile from "./ExamWithFile";
 
 const StarExam = () => {
   const { examId } = useParams();
@@ -12,6 +13,7 @@ const StarExam = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [examFinished, setExamFinished] = useState(false);
   const [score, setScore] = useState(0);
+  const [result, setResult] = useState(0);
 
   const [questions, setQuestions] = useState();
   const [isAttended, setIsAttended] = useState();
@@ -31,7 +33,6 @@ const StarExam = () => {
 
       setExamData(response.data);
 
-      console.log("useEffect worked");
     } catch (error) {
       console.error("Error fetching exam data:", error);
       toast.error("Failed to load exam data");
@@ -65,10 +66,7 @@ const StarExam = () => {
     }
   };
 
-  
-
-  const finishExam =async () => {
-
+  const finishExam = async () => {
     let totalScore = 0;
     examData[0].questions.forEach((question) => {
       if (selectedAnswers[question._id] === question.correctAnswer) {
@@ -78,19 +76,25 @@ const StarExam = () => {
     });
     setExamFinished(true);
 
-    console.log(totalScore);
-    
 
-    try{
-      const response = await api.post('/exam/submit-exam',{examId:examData[0]._id,studentId:localStorage.getItem('user_id'),score:totalScore})
+    try {
+      let passed=0;
+      if (score >= examData[0].passMark) {
+         passed = true;
+      }else{
+       passed = false;
+      }
 
-      
-      console.log(response);
-      
-      
-    }catch(err){
+      const response = await api.post("/exam/submit-exam", {
+        examId: examData[0]._id,
+        studentId: localStorage.getItem("user_id"),
+        score: totalScore,
+        passed,
+        cls:localStorage.getItem('class_id')
+      });
+
+    } catch (err) {
       console.log(err);
-      
     }
   };
 
@@ -101,6 +105,16 @@ const StarExam = () => {
   if (!examData) {
     return (
       <div className="text-center text-black">No exam data available.</div>
+    );
+  }
+
+  if (examData[0].examType === "fileUpload") {
+    return (
+      <ExamWithFile
+        examData={examData}
+        setScore={setScore}
+        setExamFinished={setExamFinished}
+      />
     );
   }
 
@@ -126,48 +140,50 @@ const StarExam = () => {
     );
   }
 
-  console.log();
-
   const currentQuestion = questions[currentQuestionIndex];
+  if (examData[0].examType === "manually") {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-6 text-center text-white">
+          {examData.examName}
+        </h1>
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center text-white">
-        {examData.examName}
-      </h1>
-
-      {flag === 1 ? (
-        <div>
-          <h1>Exam finished Click submit to proceed</h1>
-          <button
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => handleOptionSelect("", "")}
-          >
-            Submit
-          </button>
-        </div>
-      ) : (
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">
-            Question {currentQuestionIndex + 1} of{" "}
-            {examData[0].displayQuestionNumber}
-          </h2>
-          <p className="text-white mb-4">{currentQuestion.question}</p>
-          <div className="space-y-2">
-            {currentQuestion.options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleOptionSelect(currentQuestion._id, option)}
-                className="w-full text-left p-2 rounded bg-gray-700 text-white hover:bg-gray-600 transition"
-              >
-                {option}
-              </button>
-            ))}
+        {flag === 1 ? (
+          <div>
+            <h1>Exam finished Click submit to proceed</h1>
+            <button
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => handleOptionSelect("", "")}
+            >
+              Submit
+            </button>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        ) : (
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Question {currentQuestionIndex + 1} of{" "}
+              {examData[0].displayQuestionNumber}
+            </h2>
+            <p className="text-white mb-4">{currentQuestion.question}</p>
+            <div className="space-y-2">
+              {currentQuestion.options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() =>
+                    handleOptionSelect(currentQuestion._id, option)
+                  }
+                  className="w-full text-left p-2 rounded bg-gray-700 text-white hover:bg-gray-600 transition"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return <div>Exam currently not avalable</div>;
 };
 
 export default StarExam;

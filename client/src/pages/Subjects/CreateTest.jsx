@@ -6,7 +6,7 @@ import api from "../../utils/axios";
 import PdfUpload from "../AddQuestion/PdfUpload";
 
 const CreateTest = () => {
-  const { id: subjectId } = useParams();
+  const { subjectId: subjectId ,classId:classId} = useParams();
   const navigate = useNavigate();
 
   const [questions, setQuestions] = useState([]);
@@ -15,6 +15,7 @@ const CreateTest = () => {
   const [isQuestionOpen, setIsQuestionOpen] = useState(false);
   const [addPdf, setAddPdf] = useState(false);
   const [isFileUpload, setIsFileUpload] = useState(false);
+  const [questionsCount,setQuestionsCount]=useState()
   const [formData, setFormData] = useState({
     examQuestionsNumber: "",
     marksPerQuestion: 1,
@@ -27,27 +28,28 @@ const CreateTest = () => {
 
     try {
       if (addPdf && file) {
-        console.log(file);
-        console.log(answers);
         const object1 = {
           'file':file,
           examType:'fileUpload',
           subjectId,
           isActive: "pending",
+          questionsCount,
+          answers,
+          cls:classId
         };
         const combinedData = {
           ...formData,
           ...object1,
         };
 
+        
         const response = await api.post("/exam/create-exam-with-file", combinedData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
         if (response) {
-          console.log(response);
-          navigate(`/subjects/${subjectId}`);
+          navigate(`/subjects/${classId}/${subjectId}`);
         }
 
         
@@ -60,18 +62,17 @@ const CreateTest = () => {
           questions: questions,
           subjectId,
           isActive: "pending",
+          cls:classId
         };
         const combinedData = {
           ...formData,
           ...object1,
         };
-        console.log(combinedData);
         
 
         const response = await api.post("/exam/create-exam", combinedData);
         if (response) {
-          console.log(response);
-          navigate(`/subjects/${subjectId}`);
+          navigate(`/subjects/${classId}/${subjectId}`);
         }
       }
     } catch (error) {
@@ -115,7 +116,7 @@ const CreateTest = () => {
           setQuestions={setQuestions}
         />
       ) : isFileUpload ? (
-        <PdfUpload setAnswers={setAnswers} setFile={setFile}  setIsFileUpload={setIsFileUpload}/>
+        <PdfUpload setAnswers={setAnswers} setFile={setFile}  setIsFileUpload={setIsFileUpload} setQuestionsCount={setQuestionsCount}/>
       ) : (
         <>
           <div className="bg-white shadow-md rounded-lg p-6 mb-6">

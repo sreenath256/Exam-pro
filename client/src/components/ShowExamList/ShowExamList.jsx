@@ -2,22 +2,24 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../utils/axios";
 import Loading from "../Loading/Loading";
+import SelectStudentsPopup from "../Popups/SelectStudentsPopup";
 
 const ShowExamList = ({ subjectName }) => {
   const [refresh, setRefresh] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { id: subjectId } = useParams();
+  const { classId: classId, subjectId: subjectId } = useParams();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [exams, setExams] = useState([]);
+  const [popup, setPopup] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(false);
 
-        const response = await api.get(`/exam/${subjectId}`);
+        const response = await api.get(`/exam/${subjectId}/${classId}`);
 
         if (response) {
           setExams(response.data);
@@ -31,6 +33,12 @@ const ShowExamList = ({ subjectName }) => {
 
     fetchData();
   }, [refresh]);
+
+  const handleClosePopup = () => {
+    setPopup(!popup)
+  };
+
+  const handleSaveSelection = () => {};
 
   const handleStartExam = async (id) => {
     try {
@@ -78,12 +86,15 @@ const ShowExamList = ({ subjectName }) => {
               >
                 <span>Exam {exam.examName}</span>
                 {exam.isActive === "pending" ? (
-                  <span
-                    onClick={() => handleStartExam(exam._id)}
-                    className="px-2 cursor-pointer py-1 rounded text-sm font-bold bg-green-200 text-green-800"
-                  >
-                    Start
-                  </span>
+                  <>
+                    <span
+                      onClick={() => handleStartExam(exam._id)}
+                      className="px-2 cursor-pointer py-1 rounded text-sm font-bold bg-green-200 text-green-800"
+                    >
+                      Start
+                    </span>
+                   
+                  </>
                 ) : exam.isActive === "active" ? (
                   <span
                     onClick={() => handleStopExam(exam._id)}
@@ -91,12 +102,14 @@ const ShowExamList = ({ subjectName }) => {
                   >
                     Stop
                   </span>
-                ) : <span
-                onClick={() => navigate(`/${exam._id}/result`)}
-                className="px-2 py-1 cursor-pointer rounded text-sm font-bold bg-blue-200 text-blue-800"
-              >
-                See result
-              </span>}
+                ) : (
+                  <span
+                    onClick={() => navigate(`/${exam._id}/result`)}
+                    className="px-2 py-1 cursor-pointer rounded text-sm font-bold bg-blue-200 text-blue-800"
+                  >
+                    See result
+                  </span>
+                )}
                 <span
                   className={`px-2 py-1 rounded text-sm ${
                     exam.isActive === "completed"
@@ -118,6 +131,13 @@ const ShowExamList = ({ subjectName }) => {
           <p>No exams created yet.</p>
         )}
       </div>
+      {popup && (
+        <SelectStudentsPopup
+          onClose={handleClosePopup}
+          onSave={handleSaveSelection}
+          classId={classId}
+        />
+      )}
     </div>
   );
 };

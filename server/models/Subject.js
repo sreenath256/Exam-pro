@@ -5,11 +5,17 @@ const subjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  institute: {
+  s: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
+  class: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+    required: true,
+  },
+
 });
 
 module.exports = mongoose.model("Subject", subjectSchema);

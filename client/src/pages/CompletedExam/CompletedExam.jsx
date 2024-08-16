@@ -16,14 +16,14 @@ const CompletedExam = () => {
     try {
       setIsLoading(true);
       const institute = localStorage.getItem("institute");
+      const classId = localStorage.getItem("class_id");
 
-      const response = await api.get(`/exam/getCompletedExams/${institute}`);
-      console.log("Completed exam", response);
+      const response = await api.get(`/exam/getCompletedExams/${institute}/${classId}`);
 
       setActiveExams(response.data);
     } catch (error) {
-      console.error("Error fetching active exams:", error);
-      toast.error("Failed to load active exams");
+      console.error("Error fetching completed exams:", error);
+      toast.error("Failed to load completed exams");
     } finally {
       setIsLoading(false);
     }
@@ -33,14 +33,14 @@ const CompletedExam = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center text-white">
-        Active Exams
+      <h1 className="text-2xl font-bold mb-6 text-center text-blacks">
+       Completed exams
       </h1>
       {isLoading ? (
-        <p className="text-center text-white">Loading active exams...</p>
-      ) : activeExams.length === 0 ? (
-        <p className="text-center text-white">
-          No active exams available at the moment.
+        <p className="text-center text-black">Loading complted exams...</p>
+      ) : activeExams.length===0 ? (
+        <p className="text-center text-black">
+          No complted exams available at the moment.
         </p>
       ) : (
         <ul className="space-y-4">

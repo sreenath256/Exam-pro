@@ -11,7 +11,6 @@ const { createExamWithFile } = require("./controllers/examController");
 const authMiddleware = require("./middleware/authMiddleware");
 const app = express();
 
-// Load environment variables
 dotenv.config();
 
 app.use(express.json());
@@ -19,7 +18,6 @@ app.use(cors());
 app.use(morgan("common"));
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
-// Configure Multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/assets");
@@ -31,7 +29,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Route for creating an exam with a file upload
 app.post("/exam/create-exam-with-file", authMiddleware, upload.single("file"), createExamWithFile);
 
 // Test route
@@ -43,6 +40,7 @@ app.get("/test", (req, res) => {
 app.use("/auth", require("./routes/authRoute"));
 app.use("/user", authMiddleware, require("./routes/userRoute"));
 app.use("/subject", authMiddleware, require("./routes/subjectRoute"));
+app.use("/classes", authMiddleware, require("./routes/classRoute"));
 app.use("/exam", authMiddleware, require("./routes/examRoute"));
 
 const PORT = process.env.PORT || 3001;
