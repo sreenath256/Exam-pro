@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import api from "../../utils/axios";
+import { FaUserCircle, FaEnvelope, FaGraduationCap } from "react-icons/fa";
+
 import { toast } from "react-hot-toast";
+import StudentCard from "../../components/Card/StudentCard";
 
 const Student = () => {
   const [students, setStudents] = useState([]);
@@ -10,7 +13,7 @@ const Student = () => {
     name: "",
     email: "",
     password: "",
-    classId: "",  
+    classId: "",
     institute: localStorage.getItem("user_id"),
   });
 
@@ -28,7 +31,6 @@ const Student = () => {
         if (classResponse) {
           setClasses(classResponse.data);
         }
-
       } catch (err) {
         console.log(err);
       }
@@ -48,9 +50,9 @@ const Student = () => {
   const handleAddStudent = async (e) => {
     try {
       e.preventDefault();
-      
+
       const response = await api.post("/user/create-student", formData);
-      
+
       if (response) {
         toast.success("Student created");
         setStudents([...students, formData]);
@@ -122,21 +124,11 @@ const Student = () => {
         </button>
       </form>
 
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Student List</h2>
-        <ul className="space-y-2">
-          {students.map((student, index) => (
-            <li key={index} className="bg-gray-100 p-4 rounded">
-              <p>
-                <strong>Name:</strong> {student.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {student.email}
-              </p>
-              <p>
-              <strong>Class:</strong> {student.class ? student.class.name: "Not specified" }
-              </p>
-            </li>
+      <div className="max-w-4xl mx-auto p-2">
+        <h2 className="text-3xl font-bold mb-6 text-gray-800">Student List</h2>
+        <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {students.map((student) => (
+            <StudentCard student={student} key={student.id} />
           ))}
         </ul>
       </div>
