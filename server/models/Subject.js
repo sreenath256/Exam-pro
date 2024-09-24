@@ -5,7 +5,7 @@ const subjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  s: {
+  institute: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,

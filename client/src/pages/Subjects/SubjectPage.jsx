@@ -18,6 +18,8 @@ const SubjectPage = () => {
       try {
         setIsLoading(true);
         const response = await api.post("/subject", { cls: classId });
+        console.log(response);
+        
 
         if (response) {
           setSubjects(response.data);
@@ -112,7 +114,7 @@ const SubjectPage = () => {
         {students.map((student) => {
           return (
             <div className=" flex justify-start">
-              <StudentCard name={student.name} email={student.email} />
+              <StudentCard student={student} />
             </div>
           );
         })}

@@ -17,11 +17,15 @@ exports.getSubject = async (req, res) => {
 
 exports.createSubject = async (req, res) => {
   const { name, cls } = req.body;
+  
   try {
     const subject = new Subject({ name, institute: req.user._id, class: cls });
     await subject.save();
+    console.log(subject);
     res.status(201).json(subject);
   } catch (error) {
+    console.log(error);
+    
     res.status(400).json({ error: error.message });
   }
 };
